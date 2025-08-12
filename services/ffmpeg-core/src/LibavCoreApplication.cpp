@@ -3,9 +3,18 @@
 #include "spdlog/spdlog.h"
 
 #include "repositories/DatabaseConnector.hpp"
+#include "CamerasService.hpp"
 
 int LibavCoreApplication::main(const std::vector<std::string> &args)
 {
+    CamerasService camService;
+
+    auto result = camService.getAllCameras();
+
+    for (const auto& cam : result)
+    {
+        spdlog::info("Cam name {}", cam.name);
+    }
 
     return Application::EXIT_OK;
 }
@@ -16,10 +25,6 @@ void LibavCoreApplication::initialize(Application &self)
 
     loadConfiguration(getConfigPath());
     Application::initialize(self);
-
-    std::string databaseConfigPath = config().getString("database.hostname");
-
-    spdlog::info("Path - {}", databaseConfigPath);
 
     dbConfig.hostname = config().getString("database.hostname");
     dbConfig.port = config().getString("database.port");

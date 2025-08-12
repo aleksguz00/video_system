@@ -3,6 +3,7 @@
 struct CameraModel
 {
     std::string name;
+    std::string address;
     std::string rtsp;
     int id;
     bool bActive;

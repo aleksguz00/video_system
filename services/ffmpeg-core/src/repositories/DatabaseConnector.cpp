@@ -1,5 +1,6 @@
 #include "DatabaseConnector.hpp"
 
+#include <Poco/Data/PostgreSQL/Connector.h>
 #include "spdlog/spdlog.h"
 
 #include "utils/Utils.hpp"
@@ -25,6 +26,8 @@ Poco::Data::Session DatabaseConnector::getSession()
 
 void DatabaseConnector::setConnectionParams(const DatabaseConfig &dbConfig)
 {
+    Poco::Data::PostgreSQL::Connector::registerConnector();
+
     m_Hostname = dbConfig.hostname;
     m_Port = dbConfig.port;
     m_DbName = dbConfig.dbName;
@@ -40,7 +43,11 @@ void DatabaseConnector::setConnectionParams(const DatabaseConfig &dbConfig)
 std::string DatabaseConnector::getConnectionString(const std::string &hostname, const std::string &port, const std::string &dbName, const std::string &username, const std::string &password)
 {
     std::string result = 
-            std::string("host=") + hostname + std::string("port=") + port + std::string("dbname=") + dbName + std::string("user=") + username + std::string("password") + password;
+            std::string("host=") + hostname + 
+            std::string(" port=") + port + 
+            std::string(" dbname=") + dbName + 
+            std::string(" user=") + username + 
+            std::string(" password=") + password;
 
     return result;
 }

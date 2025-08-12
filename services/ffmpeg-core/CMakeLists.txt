@@ -20,12 +20,18 @@ pkg_check_modules(AVUTIL REQUIRED libavutil)
 pkg_check_modules(AVSWSCALE REQUIRED libswscale)
 pkg_check_modules(AVFILTER REQUIRED libavfilter)
 
+file(GLOB REPOSITORIES_SOURCES "src/repositories/*.cpp")
+file(GLOB MODELS_SOURCES "src/models/*.cpp")
+file(GLOB UTILS_SOURCES "src/utils/*.cpp")
+file(GLOB SERVICES_SOURCES "src/services/*.cpp")
+
 set(SOURCES
     src/LibavCoreApplication.cpp
 
-    src/repositories/DatabaseConnector.cpp
-
-    src/utils/Utils.cpp
+    ${SERVICES_SOURCES}
+    ${REPOSITORIES_SOURCES}
+    ${MODELS_SOURCES}
+    ${UTILS_SOURCES}
 )
 
 # Создать исполняемый файл
@@ -43,12 +49,12 @@ target_link_libraries(ffmpeg-core
     Poco::Net
     Poco::Util
     Poco::Data
+    PocoDataPostgreSQL
     jsoncpp
 )
 
 # Добавить include-директории
 target_include_directories(ffmpeg-core PRIVATE include)
-target_include_directories(ffmpeg-core PRIVATE src)
 target_include_directories(ffmpeg-core SYSTEM PRIVATE
     ${AVFORMAT_INCLUDE_DIRS}
     ${AVCODEC_INCLUDE_DIRS}
@@ -57,4 +63,11 @@ target_include_directories(ffmpeg-core SYSTEM PRIVATE
     ${AVDEVICE_INCLUDE_DIRS}
     ${AVFILTER_INCLUDE_DIRS}
     ${jsoncpp_INCLUDE_DIR}
+)
+target_include_directories(ffmpeg-core PRIVATE
+    "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>"
+    "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/repositories>"
+    "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/services>"
+    "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/models>"
+    "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/utils>"
 )
