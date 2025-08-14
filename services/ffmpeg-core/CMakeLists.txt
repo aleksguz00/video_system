@@ -24,6 +24,7 @@ file(GLOB REPOSITORIES_SOURCES "src/repositories/*.cpp")
 file(GLOB MODELS_SOURCES "src/models/*.cpp")
 file(GLOB UTILS_SOURCES "src/utils/*.cpp")
 file(GLOB SERVICES_SOURCES "src/services/*.cpp")
+file(GLOB CORE_SOURCES "src/libav_core/*.cpp")
 
 set(SOURCES
     src/LibavCoreApplication.cpp
@@ -70,4 +71,5 @@ target_include_directories(ffmpeg-core PRIVATE
     "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/services>"
     "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/models>"
     "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/utils>"
+    "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/libav_core>"
 )
