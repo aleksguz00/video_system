@@ -68,6 +68,8 @@
         "cinttypes": "cpp",
         "typeinfo": "cpp",
         "variant": "cpp",
-        "forward_list": "cpp"
+        "forward_list": "cpp",
+        "set": "cpp",
+        "cfenv": "cpp"
     }
 }

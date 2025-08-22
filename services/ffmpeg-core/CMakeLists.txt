@@ -4,6 +4,26 @@ project(ffmpeg_core)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+set(AMQP-CPP_BUILD_SHARED OFF CACHE BOOL "Build shared library") # можно ON
+set(AMQP-CPP_LINUX_TCP ON CACHE BOOL "Enable Linux TCP sockets")
+set(AMQP-CPP_BUILD_EXAMPLES OFF CACHE BOOL "Do not build examples")
+
+add_subdirectory(include/amqpcpp)
+
+# find_path(AMQPCPP_INCLUDE_DIR amqpcpp.h)
+# find_library(AMQPCPP_LIBRARY amqpcpp)
+
+# if(NOT AMQPCPP_INCLUDE_DIR OR NOT AMQPCPP_LIBRARY)
+#     message(FATAL_ERROR "AMQP-CPP not found")
+# endif()
+
+find_path(LIBEV_INCLUDE_DIR ev.h)
+find_library(LIBEV_LIBRARY ev)
+
+if(NOT LIBEV_INCLUDE_DIR OR NOT LIBEV_LIBRARY)
+    message(FATAL_ERROR "libev not found")
+endif()
+
 configure_file(
     ${CMAKE_SOURCE_DIR}/resources/application.ini
     ${CMAKE_BINARY_DIR}/application.ini
@@ -20,6 +40,9 @@ pkg_check_modules(AVUTIL REQUIRED libavutil)
 pkg_check_modules(AVSWSCALE REQUIRED libswscale)
 pkg_check_modules(AVFILTER REQUIRED libavfilter)
 
+# pkg_check_modules(RABBITMQ REQUIRED librabbitmq)
+
+file(GLOB AMQP_SOURCES "src/amqp/*.cpp")
 file(GLOB REPOSITORIES_SOURCES "src/repositories/*.cpp")
 file(GLOB MODELS_SOURCES "src/models/*.cpp")
 file(GLOB UTILS_SOURCES "src/utils/*.cpp")
@@ -29,16 +52,15 @@ file(GLOB CORE_SOURCES "src/libav_core/*.cpp")
 set(SOURCES
     src/LibavCoreApplication.cpp
 
+    ${AMQP_SOURCES}
     ${SERVICES_SOURCES}
     ${REPOSITORIES_SOURCES}
     ${MODELS_SOURCES}
     ${UTILS_SOURCES}
 )
 
-# Создать исполняемый файл
 add_executable(ffmpeg-core ${SOURCES})
 
-# Подключить библиотеки
 target_link_libraries(ffmpeg-core
     ${AVFORMAT_LIBRARIES}
     ${AVCODEC_LIBRARIES}
@@ -52,9 +74,12 @@ target_link_libraries(ffmpeg-core
     Poco::Data
     PocoDataPostgreSQL
     jsoncpp
+    amqpcpp
+    # ${AMQPCPP_LIBRARY}
+    # ${RABBITMQ_LIBRARIES}
+    ${LIBEV_LIBRARY}
 )
 
-# Добавить include-директории
 target_include_directories(ffmpeg-core PRIVATE include)
 target_include_directories(ffmpeg-core SYSTEM PRIVATE
     ${AVFORMAT_INCLUDE_DIRS}
@@ -64,6 +89,9 @@ target_include_directories(ffmpeg-core SYSTEM PRIVATE
     ${AVDEVICE_INCLUDE_DIRS}
     ${AVFILTER_INCLUDE_DIRS}
     ${jsoncpp_INCLUDE_DIR}
+    ${AMQPCPP_INCLUDE_DIR}
+    # ${RABBITMQ_INCLUDE_DIRS}
+    ${LIBEV_INCLUDE_DIR}
 )
 target_include_directories(ffmpeg-core PRIVATE
     "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>"
@@ -72,4 +100,5 @@ target_include_directories(ffmpeg-core PRIVATE
     "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/models>"
     "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/utils>"
     "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/libav_core>"
+    "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/amqp>"
 )
